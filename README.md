@@ -8,3 +8,7 @@
 
 ### Team members
 #### Frances Yang, zy2479@gmail.com
+#### Eunji Kim ek3223@columbia.edu
+#### Dustin Nguyen dn2519@columbia.edu
+#### Xintong Tang 	xt2249@columbia.edu
+
