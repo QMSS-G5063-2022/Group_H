@@ -3,7 +3,7 @@
 
 
 ### Brief Description of the project
-### Abstract: The project seeks to understand characteristics of clothing trends based on apparel offered on popular e-commerce sites. The data collected provides site categorizations of products up for sale such as main categories (Apparel, Accessories, etc.), subcategories (Top, Shoes, etc.), article type (T-shirts, Handbags, etc.), and other descriptives such as color, usage, year, and season. The visualizations that are planned to be produced are seasonality of color, yearly trends in categories, and clothing usage in various categories. We would also like to explore how clothing usage and article type may trend differently between male and female consumers.
+#### Abstract: The project seeks to understand characteristics of clothing trends based on apparel offered on popular e-commerce sites. The data collected provides site categorizations of products up for sale such as main categories (Apparel, Accessories, etc.), subcategories (Top, Shoes, etc.), article type (T-shirts, Handbags, etc.), and other descriptives such as color, usage, year, and season. The visualizations that are planned to be produced are seasonality of color, yearly trends in categories, and clothing usage in various categories. We would also like to explore how clothing usage and article type may trend differently between male and female consumers.
 
 How does baseColour differ from season to season and year to year? 
 How has the trend in certain subCategory changed over time?
@@ -30,12 +30,17 @@ year: year that the product was released
 usage: type of style of the product
 productDisplayName: a description of the product itself, including brand name
 
+Twitter API data: we can web scrape sentiment data from twitter with subCategory keywords on individual’s opinions by region (country).
+
+Visualizations:
+
+Word cloud: to see which articles of clothing were the most popular during each year
+Line chart: number of item change in a certain subCategory over the years
+Bar chart: How does baseColour differ from season to season and year to year? 
+Point chart: size of the number of items in subcategories/articletype
+Map: using ggmap to show clothing trends differences across the world 
 <br/>
 <br/>
-
-
-
-
 
 ### Team members
 #### Frances Yang, zy2479@gmail.com
