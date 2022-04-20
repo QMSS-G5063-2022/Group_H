@@ -1,0 +1,172 @@
+---
+title: "Keywords by Genres and by Revenue"
+author: "Maxxie Tang"
+date: "4/19/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r dataset}
+df <- read.csv("/Users/xintongtang/Desktop/Spring 2022/DataViz/Group/cleaned2.csv")
+
+subset <- df[c("id","genres", "overview", "keywords", "revenue")] #subset to columns needed 
+```
+
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(tidyverse)
+library(tm)
+library(SnowballC)
+library(textstem)
+library(stringr)
+library(csv)
+```
+
+```{r}
+genres_df <- as.data.frame(subset$genres)
+colnames(genres_df) <- c("genres")
+```
+
+
+```{r}
+genres_sep <- genres_df %>% separate(genres, into =c('empty', 'id1','idnumber1', 'name1', 'genres1','id2','idnumber2', 'name2', 'genres2'))
+```
+
+```{r}
+#keep only two genres per movie 
+subset <- cbind(subset, genres1 = genres_sep$genres1)
+subset <- cbind(subset, genres2 = genres_sep$genres2)
+
+```
+
+
+```{r}
+keywords_df <- as.data.frame(subset$keywords)
+colnames(keywords_df) <- c("keywords")
+
+keywords_df <- separate(keywords_df, 'keywords', paste("keywords", 1:20, sep="_"), sep=",", extra="drop")
+
+keywords_df <- keywords_df[,c(2,4,6,8,10,12,14,16,18,20)]
+```
+
+```{r}
+#clean the string
+keywords_df <- mutate_all(keywords_df,
+                   funs(str_replace_all(., "'name': ", "")))
+keywords_df <- mutate_all(keywords_df,
+                   funs(str_replace_all(., "\\}", "")))
+keywords_df <- mutate_all(keywords_df,
+                   funs(str_replace_all(., "\\]", "")))
+keywords_df <- mutate_all(keywords_df,
+                   funs(str_replace_all(., "\'", "")))
+keywords_df <- mutate_all(keywords_df,
+                   funs(str_replace_all(., "\"", "")))
+
+keywords_df <- data.frame(lapply(keywords_df,trimws))
+```
+
+```{r}
+#connect the words with space to make them one string
+keywords_df <- mutate_all(keywords_df,
+                   funs(str_replace_all(., "\\s", "-"))) 
+
+keywords_df <- keywords_df %>%
+  unite("keywords", keywords_2:keywords_20,sep = " ", remove = TRUE, na.rm = TRUE)
+
+```
+
+```{r}
+subset <- cbind(subset, keywords_list = keywords_df$keywords)
+subset <- subset[!is.na(subset$keywords_list),]
+```
+
+```{r}
+#creating frequency table for two genres, comedy and horror 
+comedy <- subset(subset, genres1 == "Comedy"|genres2 == "Comedy")
+comedy_corpus <- Corpus(VectorSource(comedy$keywords_list))
+
+comedy_dtm <- TermDocumentMatrix(comedy_corpus) 
+comedy_matrix <- as.matrix(comedy_dtm) 
+words <- sort(rowSums(comedy_matrix),decreasing=TRUE) 
+dd <- data.frame(word = names(words),freq=words)
+
+#---------------------------------------
+
+thriller <- subset(subset, genres1 == "Thriller"|genres2 == "Thriller")
+thriller_corpus <- Corpus(VectorSource(thriller$keywords_list))
+
+thriller_dtm <- TermDocumentMatrix(thriller_corpus) 
+thriller_matrix <- as.matrix(thriller_dtm) 
+words <- sort(rowSums(thriller_matrix),decreasing=TRUE) 
+ff <- data.frame(word = names(words),freq=words)
+
+```
+
+```{r}
+library(wordcloud)
+library(RColorBrewer)
+
+set.seed(1234)
+wordcloud(words = dd$word, freq = dd$freq, min.freq = 1,
+          max.words=100, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+```{r}
+set.seed(1234)
+wordcloud(words = ff$word, freq = ff$freq, min.freq = 1,
+          max.words=100, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+## Looking at keywords by revenue 
+Use the average as a reference point for high and low revenue
+```{r}
+mean(subset$revenue,na.rm=TRUE) 
+# for the easy of use, defining revenue above 15,000,000 as High revenue and below as Low  
+```
+
+```{r}
+high <- subset(subset, revenue > 15000000)
+high_corpus <- Corpus(VectorSource(high$keywords_list))
+high_dtm <- TermDocumentMatrix(high_corpus) 
+high_matrix <- as.matrix(high_dtm) 
+v1 <- sort(rowSums(high_matrix),decreasing=TRUE)
+high_freq <- data.frame(word = names(v1),freq=v1)
+
+low <- subset(subset, revenue <= 15000000)
+low_corpus <- Corpus(VectorSource(low$keywords_list))
+low_dtm <- TermDocumentMatrix(low_corpus) 
+low_matrix <- as.matrix(low_dtm) 
+v2 <- sort(rowSums(low_matrix),decreasing=TRUE)
+low_freq <- data.frame(word = names(v2),freq=v2)
+```
+
+
+```{r}
+library(plotrix)
+commonword <- merge(as.data.frame(high_freq), as.data.frame(low_freq), by.x = "word", by.y = "word", sort = TRUE)
+
+#order by the frequency of low revenue movies
+commonword <- commonword[order(commonword$freq.y, decreasing = TRUE),]
+
+top15 <- commonword[(1:15),]
+
+p <- pyramid.plot(top15$freq.x, top15$freq.y,
+                  labels = top15$word,
+             gap = 250,
+             top.labels = c("High Revenue", " ", "Low Revenue"),
+             main = "Words in Common",
+             laxlab = NULL,
+             raxlab = NULL,
+             unit = NULL,
+             labelcex=0.5)
+```
+
