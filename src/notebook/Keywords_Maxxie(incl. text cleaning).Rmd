@@ -11,9 +11,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r dataset}
-df <- read.csv("/Users/xintongtang/Desktop/Spring 2022/DataViz/Group/cleaned2.csv")
+df <- read.csv("/Users/xintongtang/Desktop/Spring 2022/DataViz/Group/NewDataframe.csv")
 
-subset <- df[c("id","genres", "overview", "keywords", "revenue")] #subset to columns needed 
+subset <- df[c("id","genres", "overview", "keywords", "revenue", "release_year")] #subset to columns needed 
 ```
 
 
@@ -29,21 +29,17 @@ library(stringr)
 library(csv)
 ```
 
-```{r}
-genres_df <- as.data.frame(subset$genres)
-colnames(genres_df) <- c("genres")
-```
+```{r, include=FALSE}
+#DISREGARD, old code for seperating the genres
 
+#genres_df <- as.data.frame(subset$genres)
+#colnames(genres_df) <- c("genres")
 
-```{r}
-genres_sep <- genres_df %>% separate(genres, into =c('empty', 'id1','idnumber1', 'name1', 'genres1','id2','idnumber2', 'name2', 'genres2'))
-```
+#genres_sep <- genres_df %>% separate(genres, into =c('empty', 'id1','idnumber1', 'name1', 'genres1','id2','idnumber2', 'name2', 'genres2'))
 
-```{r}
 #keep only two genres per movie 
-subset <- cbind(subset, genres1 = genres_sep$genres1)
-subset <- cbind(subset, genres2 = genres_sep$genres2)
-
+#subset <- cbind(subset, genres1 = genres_sep$genres1)
+#subset <- cbind(subset, genres2 = genres_sep$genres2)
 ```
 
 
@@ -84,12 +80,15 @@ keywords_df <- keywords_df %>%
 
 ```{r}
 subset <- cbind(subset, keywords_list = keywords_df$keywords)
-subset <- subset[!is.na(subset$keywords_list),]
+#subset <- subset[!is.na(subset$keywords_list),]
 ```
 
+
+###Comparing the wordcloud between genres. Comedy vs. Thriller&Horror. 
+
 ```{r}
-#creating frequency table for two genres, comedy and horror 
-comedy <- subset(subset, genres1 == "Comedy"|genres2 == "Comedy")
+#creating frequency table for two genres, Comedy and Thriller+Horror 
+comedy <- subset(subset, genres == "Comedy")
 comedy_corpus <- Corpus(VectorSource(comedy$keywords_list))
 
 comedy_dtm <- TermDocumentMatrix(comedy_corpus) 
@@ -99,12 +98,12 @@ dd <- data.frame(word = names(words),freq=words)
 
 #---------------------------------------
 
-thriller <- subset(subset, genres1 == "Thriller"|genres2 == "Thriller")
-thriller_corpus <- Corpus(VectorSource(thriller$keywords_list))
+thril_horror <- subset(subset, genres == "Thriller"|genres == "Horror")
+thril_horror_corpus <- Corpus(VectorSource(thril_horror$keywords_list))
 
-thriller_dtm <- TermDocumentMatrix(thriller_corpus) 
-thriller_matrix <- as.matrix(thriller_dtm) 
-words <- sort(rowSums(thriller_matrix),decreasing=TRUE) 
+thril_horror_dtm <- TermDocumentMatrix(thril_horror_corpus) 
+thril_horror_matrix <- as.matrix(thril_horror_dtm) 
+words <- sort(rowSums(thril_horror_matrix),decreasing=TRUE) 
 ff <- data.frame(word = names(words),freq=words)
 
 ```
@@ -126,22 +125,23 @@ wordcloud(words = ff$word, freq = ff$freq, min.freq = 1,
           colors=brewer.pal(8, "Dark2"))
 ```
 
-## Looking at keywords by revenue 
-Use the average as a reference point for high and low revenue
+## Looking at keywords by high revenue vs low revenue movies 
+Use the average as a reference point for high and low revenue. The average is around $10 million, so for the easy of use, defining revenue above 10,000,000 as High revenue movie and below as Low revenue movies.
+
 ```{r}
 mean(subset$revenue,na.rm=TRUE) 
-# for the easy of use, defining revenue above 15,000,000 as High revenue and below as Low  
+# for the easy of use, defining revenue above 10,000,000 as High revenue and below as Low  
 ```
 
 ```{r}
-high <- subset(subset, revenue > 15000000)
+high <- subset(subset, revenue > 10000000)
 high_corpus <- Corpus(VectorSource(high$keywords_list))
 high_dtm <- TermDocumentMatrix(high_corpus) 
 high_matrix <- as.matrix(high_dtm) 
 v1 <- sort(rowSums(high_matrix),decreasing=TRUE)
 high_freq <- data.frame(word = names(v1),freq=v1)
 
-low <- subset(subset, revenue <= 15000000)
+low <- subset(subset, revenue <= 10000000)
 low_corpus <- Corpus(VectorSource(low$keywords_list))
 low_dtm <- TermDocumentMatrix(low_corpus) 
 low_matrix <- as.matrix(low_dtm) 
@@ -157,16 +157,93 @@ commonword <- merge(as.data.frame(high_freq), as.data.frame(low_freq), by.x = "w
 #order by the frequency of low revenue movies
 commonword <- commonword[order(commonword$freq.y, decreasing = TRUE),]
 
-top15 <- commonword[(1:15),]
+top20 <- commonword[(1:20),]
 
-p <- pyramid.plot(top15$freq.x, top15$freq.y,
-                  labels = top15$word,
-             gap = 250,
+p <- pyramid.plot(top20$freq.x, top20$freq.y,
+                  labels = top20$word,
+             #gap = 250,
              top.labels = c("High Revenue", " ", "Low Revenue"),
              main = "Words in Common",
+             gap = 28,
              laxlab = NULL,
              raxlab = NULL,
              unit = NULL,
              labelcex=0.5)
+```
+
+The common words show some insight to the movie industries. Independent film are high risk and usually have a niche market. The common words duringcreditstinger is a very common "technique" in blockbuster movies such as Marvel's superheros series. 
+
+###keywords change over time 
+
+```{r}
+all_corpus <- Corpus(VectorSource(subset$keywords_list))
+
+dtm <- TermDocumentMatrix(all_corpus) 
+matrix <- as.matrix(dtm) 
+words <- sort(rowSums(matrix),decreasing=TRUE) 
+all_words <- data.frame(word = names(words),freq=words)
+
+```
+
+
+```{r}
+
+top10 <- 
+  subset %>%
+  group_by(release_year)%>%
+  summarise(word1 = sum(str_count(keywords_list, all_words$word[1])),
+            word2 = sum(str_count(keywords_list, all_words$word[2])),
+            word3 = sum(str_count(keywords_list, all_words$word[3])),
+            word4 = sum(str_count(keywords_list, all_words$word[4])),
+            word5 = sum(str_count(keywords_list, all_words$word[5])),
+            word6 = sum(str_count(keywords_list, all_words$word[6])),
+            word7 = sum(str_count(keywords_list, all_words$word[7])),
+            word8 = sum(str_count(keywords_list, all_words$word[8])),
+            word9 = sum(str_count(keywords_list, all_words$word[9])),
+            word10 = sum(str_count(keywords_list, all_words$word[10])))
+
+colnames(top10) <- c("released_year", all_words$word[1:10])
+ 
+
+```
+
+```{r}
+top10 <- as.data.frame(top10)
+top10
+```
+
+```{r}
+library(reshape2)
+long <- melt(top10, id.var = c("released_year"), variable.name = c("keywords"))
+
+long$released_year <- as.integer(long$released_year)
+
+long
+```
+
+
+
+```{r}
+library(ggplot2)
+library(gganimate)
+library(gifski)
+
+#basic bar chart 
+animation <- 
+  ggplot(long, aes(x = keywords, y = value, fill = keywords, frame = released_year))+ 
+  geom_bar(position="stack", stat='identity', show.legend = FALSE)+
+  theme(axis.text.x=element_text(angle=60,hjust=1))+
+  xlab("Keywords") + ylab("\ncount") +
+## make it move
+  transition_time(released_year)+ shadow_mark() +
+  enter_grow() +
+  exit_fade() +
+  labs(title = 'Year: {frame_time}',  
+       subtitle  =  "Top Keywords Change Overtime",
+       caption  = "data as of April 2022")
+
+animate(animation,width = 600, height = 600, renderer = gifski_renderer())
+  
+anim_save("keywords-animated-barplot.gif") 
 ```
 
