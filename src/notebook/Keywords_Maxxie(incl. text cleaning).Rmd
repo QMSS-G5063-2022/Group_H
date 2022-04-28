@@ -11,9 +11,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r dataset}
-df <- read.csv("/Users/xintongtang/Desktop/Spring 2022/DataViz/Group/NewDataframe.csv")
+df <- read.csv("/Users/xintongtang/Desktop/Spring 2022/DataViz/Group/cleaned4.csv")
 
-subset <- df[c("id","genres", "overview", "keywords", "revenue", "release_year")] #subset to columns needed 
+subset <- df[c("id","genres", "overview", "keywords", "revenue", "crew", "release_year")] #subset to columns needed 
 ```
 
 
@@ -175,6 +175,8 @@ The common words show some insight to the movie industries. Independent film are
 
 ###keywords change over time 
 
+There some keywords that show the trend in the movie industry. We want to see if there are more movie directed by woman, if there are more independent movies released over the year. And just to understand if there are more creditstinger since Marvel studio start setting the trend
+
 ```{r}
 all_corpus <- Corpus(VectorSource(subset$keywords_list))
 
@@ -188,35 +190,27 @@ all_words <- data.frame(word = names(words),freq=words)
 
 ```{r}
 
-top10 <- 
+words_of_interest <- 
   subset %>%
   group_by(release_year)%>%
-  summarise(word1 = sum(str_count(keywords_list, all_words$word[1])),
-            word2 = sum(str_count(keywords_list, all_words$word[2])),
-            word3 = sum(str_count(keywords_list, all_words$word[3])),
-            word4 = sum(str_count(keywords_list, all_words$word[4])),
-            word5 = sum(str_count(keywords_list, all_words$word[5])),
-            word6 = sum(str_count(keywords_list, all_words$word[6])),
-            word7 = sum(str_count(keywords_list, all_words$word[7])),
-            word8 = sum(str_count(keywords_list, all_words$word[8])),
-            word9 = sum(str_count(keywords_list, all_words$word[9])),
-            word10 = sum(str_count(keywords_list, all_words$word[10])))
+  summarise(women_director = sum(str_count(keywords_list, all_words$word[4])),
+            creditstinger = sum(str_count(keywords_list, all_words$word[2])
+                                +str_count(keywords_list, all_words$word[7])),
+            independent_film = sum(str_count(keywords_list, all_words$word[3])))
 
-colnames(top10) <- c("released_year", all_words$word[1:10])
- 
 
 ```
 
 ```{r}
-top10 <- as.data.frame(top10)
-top10
+words_of_interest <- as.data.frame(words_of_interest)
+words_of_interest
 ```
 
 ```{r}
 library(reshape2)
-long <- melt(top10, id.var = c("released_year"), variable.name = c("keywords"))
+long <- melt(words_of_interest, id.var = c("release_year"), variable.name = c("keywords"))
 
-long$released_year <- as.integer(long$released_year)
+long$release_year <- as.integer(long$release_year)
 
 long
 ```
@@ -230,20 +224,84 @@ library(gifski)
 
 #basic bar chart 
 animation <- 
-  ggplot(long, aes(x = keywords, y = value, fill = keywords, frame = released_year))+ 
-  geom_bar(position="stack", stat='identity', show.legend = FALSE)+
-  theme(axis.text.x=element_text(angle=60,hjust=1))+
-  xlab("Keywords") + ylab("\ncount") +
+  ggplot(long, aes(x = release_year, y = value, group = keywords, color = keywords))+ 
+  geom_line()+
+  geom_point() +
+  xlab("Year") + ylab("Number of Movies") +
 ## make it move
-  transition_time(released_year)+ shadow_mark() +
+  transition_reveal(release_year)+ shadow_mark() +
   enter_grow() +
   exit_fade() +
-  labs(title = 'Year: {frame_time}',  
-       subtitle  =  "Top Keywords Change Overtime",
+  labs(title = 'Movie Trend Overtime',  
        caption  = "data as of April 2022")
 
 animate(animation,width = 600, height = 600, renderer = gifski_renderer())
   
 anim_save("keywords-animated-barplot.gif") 
+```
+
+
+###Directors 
+
+Made two chart visualizations
+
+```{r}
+library(stringr)
+
+subset$director <- str_match(subset$crew, "Director', 'name':\\s*(.*?), 'profile_path")[,2]
+
+subset$director <-str_replace_all(subset$director, "\'", "")
+
+subset$director <-str_replace_all(subset$director, "\"", "")
+
+```
+
+```{r}
+# finding the top 10 directors by revenue 
+
+top10 <- 
+  subset %>%
+  group_by(director) %>%
+  summarise(revenue = sum(revenue))
+
+```
+
+```{r}
+top10 <-top10[order(-top10$revenue),][1:10,]
+
+top10$revenue <- round((top10$revenue/100000), digits = 0)
+
+```
+
+```{r}
+ggplot(top10, aes(director, revenue)) + geom_bar(fill="white", colour="darkgreen", 
+           alpha=0.5, stat="identity") + coord_flip() + scale_x_discrete() + 
+           scale_y_continuous(breaks=seq(0,90000 , 10000)) + theme_bw() + 
+           xlab("Movie Director") + ylab("Total Revenue in $Million")
+           theme(axis.title.x  = element_blank(), axis.title.y  = element_blank())
+```
+
+```{r}
+library(echarts4r)
+library(png)
+#library(echarts4r.assets)
+
+
+top10 %>% 
+  e_charts(director) %>% 
+  e_pictorial(revenue, symbol = "circle" , 
+              symbolRepeat = TRUE, z = -1,
+              symbolSize = c(20, 20)) %>% 
+  e_theme("westeros") %>%
+  e_title("Total Revenue in Million for Top10 Directors") %>% 
+  e_flip_coords() %>%
+  # Hide Legend
+  e_legend(show = FALSE) %>%
+  # Remove Gridlines
+  e_x_axis(splitLine=list(show = FALSE)) %>%
+  e_y_axis(splitLine=list(show = FALSE)) %>%
+  # Format Label
+  e_labels(fontSize = 10, fontWeight ='bold', position = "right", offset=c(10, 0))
+
 ```
 
