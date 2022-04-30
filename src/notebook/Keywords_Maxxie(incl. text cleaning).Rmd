@@ -203,7 +203,7 @@ words_of_interest <-
 
 ```{r}
 words_of_interest <- as.data.frame(words_of_interest)
-words_of_interest
+#words_of_interest
 ```
 
 ```{r}
@@ -212,7 +212,7 @@ long <- melt(words_of_interest, id.var = c("release_year"), variable.name = c("k
 
 long$release_year <- as.integer(long$release_year)
 
-long
+#long
 ```
 
 
@@ -289,19 +289,21 @@ library(png)
 
 top10 %>% 
   e_charts(director) %>% 
+  e_dims(height = "auto", width = "auto") %>%
   e_pictorial(revenue, symbol = "circle" , 
               symbolRepeat = TRUE, z = -1,
-              symbolSize = c(20, 20)) %>% 
+              symbolSize = c(15, 15)) %>% 
   e_theme("westeros") %>%
-  e_title("Total Revenue in Million for Top10 Directors") %>% 
+  e_title("Total Revenue in Million for Top10 Directors", left = "center", top = 5, 
+          textStyle = list(fontSize = 15)) %>% 
   e_flip_coords() %>%
   # Hide Legend
   e_legend(show = FALSE) %>%
   # Remove Gridlines
   e_x_axis(splitLine=list(show = FALSE)) %>%
-  e_y_axis(splitLine=list(show = FALSE)) %>%
+  e_y_axis(splitLine=list(show = FALSE), axisLabel = list(interval = 0, rotate = 30)) %>%
   # Format Label
-  e_labels(fontSize = 10, fontWeight ='bold', position = "right", offset=c(10, 0))
+  e_labels(fontSize = 10, fontWeight ='bold', position = "right", offset=c(10, 0),)
 
 ```
 
