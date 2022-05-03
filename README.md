@@ -1,9 +1,12 @@
 # Group_H 
-# Project Title: Fashion Trend Visualization
+# Project Title: Movie
 
 
 ### Brief Description of the project
-#### The project seeks to understand characteristics of clothing trends based on apparel offered on popular e-commerce sites. The data collected provides site categorizations of products up for sale such as main categories (Apparel, Accessories, etc.), subcategories (Top, Shoes, etc.), article type (T-shirts, Handbags, etc.), and other descriptives such as color, usage, year, and season. The visualizations that are planned to be produced are seasonality of color, yearly trends in categories, and clothing usage in various categories. We would also like to explore how clothing usage and article type may trend differently between male and female consumers.
+#### In the past 40 years, the movie experience has changed drastically. Ticket prices have risen as higher production has gone into every type of movie, ranging from Action to Romance to Thriller. With evolved technology, CGI has enhanced movie sets and provided incredibly realistic environments, and animations have become more popular. The Internet has made movies more accessible, both with regards to booking a theater experience, renting a movie, or streaming, both legally and illegally. 
+#### Since the movie experience and content itself has changed so much in the past forty years, we wanted to know: does movie budget seem to reflect how much revenue a movie will make, and does the genre matter? As people have begun streaming movies with the advent of the Internet, does revenue still reflect a movie’s popularity? What genres are Americans most drawn towards as time has passed?
+#### We found a dataset containing 45,000 movies in the Full MovieLens Dataset, containing information regarding movies released on or before July 2017, and to see the changes that happened before and during significant advances in technology, we set our year range from 1981 to 2017. With this in mind, we set out to clean our data to best draw out the analyses that we desired.
+
 
 
 ### Team members
