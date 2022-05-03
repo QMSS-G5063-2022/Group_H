@@ -87,7 +87,7 @@ subset <- cbind(subset, keywords_list = keywords_df$keywords)
 ###Comparing the wordcloud between genres. Comedy vs. Thriller&Horror. 
 
 ```{r}
-#creating frequency table for two genres, Comedy and Thriller+Horror 
+#creating frequency table for two genres, Comedy vs. Thriller+Horror vs. Actions
 comedy <- subset(subset, genres == "Comedy")
 comedy_corpus <- Corpus(VectorSource(comedy$keywords_list))
 
@@ -106,6 +106,17 @@ thril_horror_matrix <- as.matrix(thril_horror_dtm)
 words <- sort(rowSums(thril_horror_matrix),decreasing=TRUE) 
 ff <- data.frame(word = names(words),freq=words)
 
+#-----------------------------------------
+
+action <- subset(subset, genres == "Action")
+action_corpus <- Corpus(VectorSource(action$keywords_list))
+
+action_dtm <- TermDocumentMatrix(action_corpus) 
+action_matrix <- as.matrix(action_dtm) 
+words <- sort(rowSums(action_matrix),decreasing=TRUE) 
+cc <- data.frame(word = names(words),freq=words)
+
+
 ```
 
 ```{r}
@@ -113,17 +124,26 @@ library(wordcloud)
 library(RColorBrewer)
 
 set.seed(1234)
+
 wordcloud(words = dd$word, freq = dd$freq, min.freq = 1,
           max.words=100, random.order=FALSE, rot.per=0.35, 
-          colors=brewer.pal(8, "Dark2"))
+          colors=brewer.pal(9, "Greens"))
 ```
 
 ```{r}
 set.seed(1234)
 wordcloud(words = ff$word, freq = ff$freq, min.freq = 1,
           max.words=100, random.order=FALSE, rot.per=0.35, 
-          colors=brewer.pal(8, "Dark2"))
+          colors=brewer.pal(8, "Reds"))
 ```
+
+```{r}
+set.seed(1234)
+wordcloud(words = cc$word, freq = cc$freq, min.freq = 1,
+          max.words=100, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "PuRd"))
+```
+
 
 ## Looking at keywords by high revenue vs low revenue movies 
 Use the average as a reference point for high and low revenue. The average is around $10 million, so for the easy of use, defining revenue above 10,000,000 as High revenue movie and below as Low revenue movies.
@@ -163,12 +183,15 @@ p <- pyramid.plot(top20$freq.x, top20$freq.y,
                   labels = top20$word,
              #gap = 250,
              top.labels = c("High Revenue", " ", "Low Revenue"),
+             lxcol=terrain.colors(35),
+             rxcol=heat.colors(20),
              main = "Words in Common",
              gap = 28,
              laxlab = NULL,
              raxlab = NULL,
              unit = NULL,
-             labelcex=0.5)
+             labelcex=0.5,
+             )
 ```
 
 The common words show some insight to the movie industries. Independent film are high risk and usually have a niche market. The common words duringcreditstinger is a very common "technique" in blockbuster movies such as Marvel's superheros series. 
