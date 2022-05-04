@@ -1,0 +1,403 @@
+---
+title: "Group H: Movie Production Data"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+```
+
+```{r, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(ggthemes)
+library(tm)
+library(SnowballC)
+library(textstem)
+library(stringr)
+library(csv)
+library(plotly)
+library(wordcloud)
+library(RColorBrewer)
+library(plotrix)
+
+movies_meta <- read.csv("C:/1columbia/dv/groupdata/moviesdata/movies_metadata.csv", stringsAsFactors = FALSE)
+clean4 <- read.csv("C:/1columbia/dv/groupdata/moviesdata/cleaned4.csv", stringsAsFactors = FALSE)
+
+
+```
+
+
+```{r}
+#Filtering
+df <- clean4
+subset <- df[c("id","genres", "overview", "keywords", "revenue", "crew", "release_year")]
+
+keywords_df <- as.data.frame(subset$keywords)
+colnames(keywords_df) <- c("keywords")
+keywords_df <- separate(keywords_df, 'keywords', paste("keywords", 1:20, sep="_"), sep=",", extra="drop")
+
+keywords_df <- keywords_df[,c(2,4,6,8,10,12,14,16,18,20)]
+
+#clean the string
+keywords_df <- mutate_all(keywords_df,
+                   funs(str_replace_all(., "'name': ", "")))
+keywords_df <- mutate_all(keywords_df,
+                   funs(str_replace_all(., "\\}", "")))
+keywords_df <- mutate_all(keywords_df,
+                   funs(str_replace_all(., "\\]", "")))
+keywords_df <- mutate_all(keywords_df,
+                   funs(str_replace_all(., "\'", "")))
+keywords_df <- mutate_all(keywords_df,
+                   funs(str_replace_all(., "\"", "")))
+
+keywords_df <- data.frame(lapply(keywords_df,trimws))
+
+#connect the words with space to make them one string
+keywords_df <- mutate_all(keywords_df,
+                   funs(str_replace_all(., "\\s", "-"))) 
+
+keywords_df <- keywords_df %>%
+  unite("keywords", keywords_2:keywords_20,sep = " ", remove = TRUE, na.rm = TRUE)
+
+subset <- cbind(subset, keywords_list = keywords_df$keywords)
+
+```
+
+
+```{r}
+
+###Comparing the wordcloud between genres. Comedy vs. Thriller&Horror. 
+#creating frequency table for two genres, Comedy and Thriller+Horror 
+comedy <- subset(subset, genres == "Comedy")
+comedy_corpus <- Corpus(VectorSource(comedy$keywords_list))
+
+comedy_dtm <- TermDocumentMatrix(comedy_corpus) 
+comedy_matrix <- as.matrix(comedy_dtm) 
+words <- sort(rowSums(comedy_matrix),decreasing=TRUE) 
+dd <- data.frame(word = names(words),freq=words)
+
+#---------------------------------------
+
+thril_horror <- subset(subset, genres == "Thriller"|genres == "Horror")
+thril_horror_corpus <- Corpus(VectorSource(thril_horror$keywords_list))
+
+thril_horror_dtm <- TermDocumentMatrix(thril_horror_corpus) 
+thril_horror_matrix <- as.matrix(thril_horror_dtm) 
+words <- sort(rowSums(thril_horror_matrix),decreasing=TRUE) 
+ff <- data.frame(word = names(words),freq=words)
+
+#---------------------------------------
+
+action <- subset(subset, genres == "Action")
+action_corpus <- Corpus(VectorSource(action$keywords_list))
+
+action_dtm <- TermDocumentMatrix(action_corpus) 
+action_matrix <- as.matrix(action_dtm) 
+words <- sort(rowSums(action_matrix),decreasing=TRUE) 
+cc <- data.frame(word = names(words),freq=words)
+```
+
+
+```{r}
+high <- subset(subset, revenue > 10000000)
+high_corpus <- Corpus(VectorSource(high$keywords_list))
+high_dtm <- TermDocumentMatrix(high_corpus) 
+high_matrix <- as.matrix(high_dtm) 
+v1 <- sort(rowSums(high_matrix),decreasing=TRUE)
+high_freq <- data.frame(word = names(v1),freq=v1)
+
+low <- subset(subset, revenue <= 10000000)
+low_corpus <- Corpus(VectorSource(low$keywords_list))
+low_dtm <- TermDocumentMatrix(low_corpus) 
+low_matrix <- as.matrix(low_dtm) 
+v2 <- sort(rowSums(low_matrix),decreasing=TRUE)
+low_freq <- data.frame(word = names(v2),freq=v2)
+```
+
+Production
+================================
+
+Row {data-height=500}
+------------------------------------------------------------------------------
+
+### Production by genre {data-width=500}
+
+```{r}
+genre_count <- read.csv("C:/1columbia/dv/groupdata/moviesdata/genre_counts1.csv", stringsAsFactors = FALSE)
+
+figure <- plot_ly(genre_count,
+                  x = ~genre,
+                  y = ~cumulative,
+                  color= ~genre,
+                  type = "bar",
+                  frame = ~year
+                  )
+
+figure <- figure %>% layout(
+                  title="Movie Production by Genre (Cumulative)",
+                  showlegend=TRUE,
+                  font = list(color = "#013220"),
+                  xaxis = list(title = ""),
+                  yaxis = list(title = "Cumulative Count",
+                               autorange = TRUE)
+)
+
+figure
+```
+
+
+
+Row {data-height=500}
+------------------------------------------------------------------------------
+
+### Top 5 Genre Average Popularity {data-width=500}
+
+```{r}
+
+#filtered for vars of interest
+movie_genre <- movies_meta %>%
+  mutate(release_year = substr(release_date, 1, 4)) %>% #year
+  drop_na(release_year)%>%
+  drop_na(genres)%>%
+  select(id, title, release_year, genres, popularity)
+
+clean4 <- clean4 %>%
+  drop_na(release_year)%>%
+  select(id, title, release_year, popularity)
+
+#creating genre variables
+genre_list = c("Action",
+                  "Adventure",
+                  "Animation",
+                  "Comedy",
+                  "Crime",
+                  "Drama",
+                  "Documentary",
+                  "Family",
+                  "Fantasy",
+                  "History",
+                  "Horror",
+                  "Music",
+                  "Mystery",
+                  "Romance",
+                  "Science Fiction",
+                  "Thriller",
+                  "TV Movie",
+                  "War",
+                  "Western")
+
+for (i in 1:19){
+  name = genre_list[i]
+  movie_genre[name] <- 0
+}
+
+#replacing TRUE if genres variable contains genre substring
+for (i in 1:19){
+  movie_genre[genre_list[i]] <- ifelse(grepl(genre_list[i], movie_genre$genres),
+                                       1, 0)
+}
+
+#movie genres and id only
+subset_list <- append(genre_list, "id")
+genre_data <- movie_genre[subset_list]
+genre_data$id <- as.numeric(as.character(genre_data$id))
+genre_data <- drop_na(genre_data, id)
+genre_data <- genre_data[!duplicated(genre_data$id), ]
+
+#merging genre data with cleaned df
+clean_genre <- left_join(clean4, genre_data, by=c("id" = "id"))
+
+names(clean_genre)[names(clean_genre) == 'release_year'] <- 'year'
+
+year = c()
+genre = c()
+popularity = c()
+
+for(i in 1:nrow(clean_genre)){
+  row <- clean_genre[i,]
+  for (i in 1:19){
+    if (isTRUE(row[genre_list[i]] == 1)){
+      year <- c(year, row$year)
+      genre <- c(genre, colnames(row[genre_list[i]]))
+      popularity <- c(popularity, row$popularity)
+    }
+  }
+}
+
+clean_data <- data.frame(year, genre, popularity)
+
+movie_genre_sum <- clean_genre %>%
+  group_by(year) %>%
+  summarise(across(is.numeric, sum)) %>%
+  select(-id, -popularity)
+
+top_genres <- data.frame(colSums(select_if(movie_genre_sum, is.numeric)))
+colnames(top_genres) <- "num"
+top_genres <- add_rownames(top_genres, var = "genre")
+
+top_5 <- top_genres %>%
+  arrange(desc(num)) %>%
+  mutate(rank = row_number()) %>%
+  filter(rank <= 6) %>%
+  ungroup() %>%
+  select(genre) %>%
+  unlist() %>%
+  c()
+
+pop_line <- clean_data %>%
+  filter(genre %in% top_5, year > 1999) %>%
+  group_by(year, genre) %>%
+  summarise(avgpop = mean(popularity)) %>%
+  ggplot(., aes(x=year, y=avgpop, group=genre, color = genre)) +
+  geom_line() +
+  labs(x = "Year",
+       y = "Average Popularity Score",
+       title = "Top 5 Most Popular Movie Genres by Popularity Score (IMBd)")
+
+ggplotly(pop_line)
+
+```
+
+### Movie Primary Genre Pie Chart
+
+```{r picture, echo = F, fig.cap = "Title", out.width = '100%'}
+knitr::include_graphics("C:/1columbia/dv/groupdata/pie_genre.png")
+```
+
+Budget/Revenue
+================================
+
+Row {data-height=500}
+------------------------------------------------------------------------------
+
+### Budget Bar Animation {data-width=650}
+
+```{r}
+budget_data <- read.csv("C:/1columbia/dv/groupdata/moviesdata/budget.csv", stringsAsFactors = FALSE)
+
+figure <- plot_ly(budget_data,
+                  x = ~genres,
+                  y = ~Cumulative,
+                  color= ~genres,
+                  type = "bar",
+                  frame = ~release_year
+                  )
+
+figure <- figure %>% layout(
+                  title="Movie Budget/Expenditure by Genre (Cumulative)",
+                  showlegend=TRUE,
+                  font = list(color = "#013220"),
+                  xaxis = list(title = "",
+                               tickfont = list(size = 10)),
+                  yaxis = list(title = "USD ($)",
+                               autorange = TRUE)
+)
+
+
+figure
+```
+
+### Movie Budget by Genre Violin Chart
+
+```{r, echo = F, fig.cap = "Title", out.width = '100%'}
+knitr::include_graphics("C:/1columbia/dv/groupdata/moviesdata/bud-test.png")
+```
+
+Row {data-height=500}
+------------------------------------------------------------------------------
+
+### Bubble Chart  {data-width=650}
+
+```{r}
+bubble_data <- read.csv("C:/1columbia/dv/groupdata/moviesdata/cleaned4.csv", stringsAsFactors = FALSE)
+bubble_data$profit <- (bubble_data$revenue - bubble_data$budget)
+
+figure <- plot_ly(bubble_data,
+                  x = ~vote_average,
+                  y = ~profit,
+                  color= ~genres,
+                  type = "scatter",
+                  size = ~(popularity),
+                  text = ~paste(title)
+                  )
+
+figure <- figure %>% layout(
+                  title="Net Profit, IMBd Rating, and Popularity Score",
+                  showlegend=TRUE,
+                  font = list(color = "#013220"),
+                  xaxis = list(title = "IMBd Rating Average",
+                               range = c(3,9)),
+                  yaxis = list(title = "Net Profit in USD ($)")
+)
+
+figure
+```
+
+
+### Movie Revenue by Genre Violin Chart
+
+```{r, echo = F, fig.cap = "Title", out.width = '100%'}
+knitr::include_graphics("C:/1columbia/dv/groupdata/moviesdata/rev-test.png")
+```
+
+
+Synopsis Text Analysis
+================================
+
+Row {data-height=500}
+-----------------------------------------------------------------------
+
+### Action Films Keyword Wordcloud
+
+```{r}
+set.seed(1234)
+wordcloud(words = cc$word, freq = cc$freq, min.freq = 1,
+          max.words=100, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "PuRd"))
+```
+
+### Comedy Films Keyword Wordcloud
+
+```{r}
+set.seed(1234)
+wordcloud(words = dd$word, freq = dd$freq, min.freq = 1,
+          max.words=100, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Greens"))
+```
+
+### Thriller Films Keyword Wordcloud
+
+```{r}
+set.seed(1234)
+wordcloud(words = ff$word, freq = ff$freq, min.freq = 1,
+          max.words=100, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Reds"))
+```
+
+
+Row {data-height=500}
+-----------------------------------------------------------------------
+
+### Keyword Comparison Between High and Low Revenue Films
+
+```{r}
+commonword <- merge(as.data.frame(high_freq), as.data.frame(low_freq), by.x = "word", by.y = "word", sort = TRUE)
+
+#order by the frequency of low revenue movies
+commonword <- commonword[order(commonword$freq.y, decreasing = TRUE),]
+top20 <- commonword[(1:20),]
+
+p <- pyramid.plot(top20$freq.x, top20$freq.y,
+                  labels = top20$word,
+                  top.labels = c("High Revenue", " ", "Low Revenue"),
+                  main = "Synopsis Words in Common",
+                  gap = 50,
+                  labelcex=.75)
+
+```
+
