@@ -119,6 +119,102 @@ v2 <- sort(rowSums(low_matrix),decreasing=TRUE)
 low_freq <- data.frame(word = names(v2),freq=v2)
 ```
 
+Project Description
+================================
+
+Row {data-height=400}
+-----------------------------------------------------------------------
+
+### Group H: Frances, Dustin, Julia, Maxxie
+
+#### Movies
+In the past 40 years, the movie experience has changed drastically. Ticket prices have risen as higher production has gone into every type of movie, ranging from Action to Romance to Thriller. With evolved technology, CGI has enhanced movie sets and provided incredibly realistic environments, and animations have become more popular. The Internet has made movies more accessible, both with regards to booking a theater experience, renting a movie, or streaming.
+
+Since the movie experience and content itself has changed so much in the past forty years, we wanted to know: does movie budget seem to reflect how much revenue a movie will make, and does the genre matter? As people have begun streaming movies with the advent of the Internet, does revenue still reflect a movie’s popularity? What genres are Americans most drawn towards as time has passed?
+
+We found a dataset containing 45,000 movies in the Full MovieLens Dataset, containing information regarding movies released on or before July 2017, and to see the changes that happened before and during significant advances in technology, we set our year range from 1981 to 2017. With this in mind, we set out to clean our data to best draw out the analyses that we desired.
+
+#### Cleaning our data
+
+Within the movie datasets, we wanted to explore genres of movies created, budgets, revenue, popularity by rating, and keywords that were used to describe the movies. The two files we had were keywords.csv and movies_metadata.csv.
+
+For genres, as the majority of the movies had multiple sub-genres, we chose to extract the first genre of each movie within the genre column as the movie’s primary genre. This way we could avoid duplicate counting of movies when analyzing genres of movies made, and categorize each movie in accordance with what seemed to be the primary genre of each movie.
+
+We made a year range limit of 1981 to 2017, as we wanted to see primarily movies that included a higher budget, as well as a specific range within the changes that we saw in technological advances. For keywords for our word clouds, we merged Thriller and Horror data together, as we considered those to be similar genres and wanted to ensure we had enough data for keyword frequencies.
+
+Row {data-height=600}
+-----------------------------------------------------------------------
+### Plot Descriptions
+
+#### Pie chart description:
+
+The three primary genres that were evident were Drama, Comedy, and Action making up about 60% of all movies in our dataset. Others included Adventure, horror, Crime, Thriller, Animation, Fantasy, and Romance under 10% of all movies, and 7.2% were Other genres.
+
+#### Top 5 Most Popular Movies Genres by Popularity Score (IMDb)
+
+We found that the top five most popular movie genres by IMDb popularity scores were Action, Adventure, Comedy, Drama, and Thriller. By 2017, the genres that had the highest popularity scores were Adventure and Action, at about 65 and 60 respectively. Comedy had gone up to about 37, Thriller had gone up to about 35, and Drama was at about 30. Interestingly, Adventure has always had the highest score, but all popularity scores for all genres dipped a little between 2015 and 2016, but then enjoyed a rise overall by 2017. The popularity scores make sense as Action and Adventure have a pretty clear objective of providing a lot of action or a known plotline for an adventure, particularly if they are adapted from a written series, whereas Comedy can be more subjective and appeal to a smaller audience, Dramas can be controversial, and a Thriller may “Thrill” too little or too much, depending on the person.
+
+#### Movie Budget Change overtime by Budget
+
+Action, Adventure, Comedy, and Drama were the genres that had the most budget, with Action cumulatively having over $40 billion by 2017. The other three genres that followed were Adventure, Comedy, and Drama, each with an allotted cumulative budget of between 22.5 billion and 25 billion dollars. Other genres had some budget as well in 2017, with Animation taking up almost 10 billion, and Crime and Horror having slightly over 5 billion dollars. Other genres also had some budget allotted as well, but as some genres had less budget, it could have meant that a budget had not been created for the genres, and perhaps that although there are certain movie genres that require higher budgets due to CGI and backdrop creation. The source of the budget is unclear, so the amounts that we see are probably from a variety of sources, and it could be that budget is higher for movies in genres such as Action, Adventure, Comedy, and Drama because they are more well-known to sponsors and incorporate bigger names in their movies, rather than reflecting all audiences’ preferences for movie types that they would want to see.
+
+#### Movie Revenue Changes Overtime by Genre
+
+Movies from 1981 to 1991 seemed to primarily take in revenue from movies that were Action, Adventure, Comedy, or Drama, and remained similarly with those genres taking in similar amounts of cumulative revenue just shy of 10 billion dollars, and all others taking in significantly less. By 2001, those four genres were still the leading genres at around 20 billion in revenue each. In 2011, again those four genres still led with Action and Adventure movies taking in about 60 billion dollars of revenue each, and Comedy and Drama trailing not too far behind at about 50 billion and 45 billion in revenue respectively. As Animated movies became more popular, by 2011 they also made around 20 billion in revenue, and other genres such as crime, fantasy, horror, and thriller also appeared to be gaining in revenue. By 2017, with the increase in popularity of Marvel movies and other action movies, revenue skyrocketed for Action movies at over 10 billion dollars in revenue, and Adventure, Comedy, and Drama appeared to continuously gain revenue as well at 80 billion, 60 billion, and 60 billion respectively. With the advent of Pixar and Disney movies, it seemed that Animation also caught up to almost 35 billion dollars in revenue, and while other genres of movies did not enjoy as high of a revenue as the five listed, there continued to be revenue for a wide range of genres, including Crime, Family, Fantasy, Horror, Science Fiction, and Thriller, which demonstrated that there was some audience interest in a diverse set of movies, even if they were not ones that were most sought after by the general population.
+
+#### Keywords change over time
+
+The keywords: “Based on novel,” “during credits stinger,” “independent film,” “woman director,” “murder,” “dystopia,” “after credits stinger,” “sequel,” “biography,” “sex”
+
+The top keywords over time shifted, with “during credits stinger” taking top place by the end of 2017. Considering that there are many movies that now contain an Easter egg during its credits that may tease a sequel or provide additional context to the movie, it makes sense that those keywords rose over time. Other keywords that rose over time were “based-on-novel,” “biography,” and “sequel,” all of which came later around the year 2000 as more books were adapted into film, more biographies were documented as live-action movies, and sequels were generated to continue a series.
+
+Initially it seemed to be that “murder” was a keyword that was often included in descriptions, as well as “sex,” and were leading as keywords; however, it seemed that almost all words balanced out in frequency over time, and those that led were as described earlier.
+
+#### Movie Genre Changes over time (Movie Production by Genre Cumulative)
+
+By 1991, it seemed that Action, Adventure, Comedy, Drama, and Horror took up at around 100 cumulative counts each. In 2001, Comedy took the lead at around 350 cumulative counts, with Drama and Action trailing not too far behind. By 2011, Drama took a slight lead over Comedy at just around 750 movies having been made within the genre, with Comedy movies produced at a similar rate, Action at just under 600 count, and with Adventure movies beginning to pick up some pace. Horror movies hit just over 200 by 2011 as well, and Crime went up to about 150. Animation, Fantasy, and Thrillers were also beginning to pick up at just shy of 100 cumulative movies having been recorded within our dataset. By 2017, the most produced movies were in the Drama genre at just under 1000. Comedy was at around 900, Action was just over 750, and Adventure had taken the lead over Horror, Crime, Thriller and Animation. Other movies worth taking note of were Fantasy, Romance, and Science Fiction, all coming in at just shy of 100 cumulative movies each. Although it is not clear what caused more movies under the genre Drama to be produced over time, it certainly seems that they had enough appeal that they continued to be created for audience consumption throughout the years.
+
+Vote Average vs. Revenue (Scatter plot of popularity vs. revenue, bubble size by popularity)
+When hovering over each data point, viewers can see the movie name, genre, vote average, revenue, and popularity score. This size of the bubble indicates the popularity score, to easily compare which movies were most popular, with color indicating genre, x-axis as the vote average, and y-axis as the revenue. This way, viewers can see if revenue indicated in any sense a higher popularity score, as a higher revenue typically indicates that more people went in person to go watch the movie, and see which genre of movie enjoyed the most popularity. It seemed that while Avatar had one of the highest revenues, it scored only at about just slightly over 7 for the vote average. Other movies that had a lower vote average but still had massive popularity scores were Minions and Beauty and the Beast. Some movies that had much lower revenues but still enjoyed the highest vote averages were The Guide, The Dark Knight, Schindler’s List, Pulp Fiction, Fight Club, and Whiplash. As some of these movies came out earlier than others, the revenue could indicate the times more than anything, since movies have, since 1981, become a more expensive experience than in the past.
+
+#### Violin Plot of Budget by Movie Genres
+
+Looking at the violin charts for budget by movie genres, it seemed that Adventure, Animation, Action, Fantasy, Drama, Thriller, Family tended to gather higher budgets. However, it particularly seemed that regardless of the highest outliers, animation required a higher budget for movies created, whereas other genres seemed to have a few that required high budgets but then more that tended to have a smaller amount allotted to them, which is in line with the notion that animation, requiring a team of animators and using post-production may require more money up front to create. This was similarly the case with Adventure, which had the biggest interquartile range and budget, as well as with Action, Science Fiction and Fantasy which had smaller budgets in general.
+
+#### Violin Plot of Revenue by Movie Genres
+
+Looking at the violin charts by revenue, it seemed that Action took in the most revenue, with Drama and Animation and Family and Science Fiction following slowly behind in terms of their highest grossing movies. This could be due to the high production that is required for animation and adventure, as it may require a lot of CGI which can be expensive, while other genres may not require as much post-production retouching or creation. However, it seemed that Animation consistently took in a larger interquartile range of revenue, between 100~500 million dollars. Adventure and Family movies also tended to have a larger interquartile range, both with ranges that were between 50~300 million, while those that had movies that had high revenues that may have been outliers had smaller interquartile ranges that went to maybe 20 million such as Action, Science Fiction, and Drama.
+
+#### Comparing wordclouds of Action, Comedy, vs Thriller/Horror
+
+We wanted to see how different word clouds for different genres might be. As we wanted a high contrast, we chose Action, Comedy, and Thriller/Horror as two genres to compare. We combined Thriller and Horror keywords as they are very similar and wanted to ensure that we had enough data for the wordcloud.
+
+For Action, dystopia was the highest frequency term. This makes sense considering the high number of dystopian films that have been released in the past few decades, but all things considered most action movies do seem to take place in a dystopia (The Matrix, Hunger Games, The Purge, etc.) but is somewhat surprising as a key term. The next highest frequency terms were martial-arts, based-on-comic, assassin, murder, superhero, violence, sequel, and revenge, which all make sense considering there typically has to be a reason for fight scenes to take place which action typically connotes.
+
+For Comedy, we saw that woman-director was the highest frequency term, along with aftercreditsstinger, high-school, wedding, and sport. Those following closely thereafter were teenager, love, based-on-novel, new-york, romantic-comedy, friendship, sequel, and sex. This all makes sense as these words are generally regarding social relationships and environments, which are all common places where comedic scenes may take place - in reality.
+
+For Thriller/Horror, to nobody’s surprise, murder was the most common word. Following thereafter were psychopath, slasher, supernatural, which made sense as they all describe scenarios and participants in these genres, as well as sequel and remake which was interesting as it is true that there are often remakes and sequels of horror and thriller movies being made, but seeing that be as high frequency of a word as it was demonstrated that movies that were made in the past had a niche market of people in which there is a demand for a remake or a sequel often. Thereafter the most frequent words were revenge, demon, serial-killer, gore, found-footage, female-nudity, and nudity.
+
+####Looking at keywords by high revenue vs low revenue movies - pyramid plot
+
+Using the average as a reference point for high and low revenues, we saw that the average was around $10 million. For the sake of reference, we defined revenue above 10 million as a high revenue movie, and any below as low revenue movies.
+
+For high revenue movies, the highest frequency words of the words that were in common between high and low revenue movies were “duringcreditsstinger,” “based-on-novel, and then “woman-director,” “murder,” and “dystopia.” For low revenue movies, the most frequent words tended to be “independent-film,” “woman-director,” and then “murder,” with all other words having a slow gradation down.
+
+The common words show some insight into the movie industry. Independent films tend to be high risk with a niche market, which may explain why low revenue movies had a high frequency of that term. The common word “duringcreditsstinger” is a very common technique in blockbuster films such as Marvels’ superhero series, which may explain why it was so frequently mentioned.
+
+#### Keywords Change Over Time
+
+Some keywords demonstrate a particular trend in the movie industry that reflect what may either be a niche market or a growing demand from the movie-going population. The keywords we chose were “women_director,” “independent_film,” and “creditsstinger.” We wanted to see if there are more movies directed by women now than before, if there are more independent movies released over the years as the Cannes film festival has grown in popularity, and just to understand if there are more credits-stingers since Marvel studio began setting the trend.
+
+In the plot, we see that while there are variations over time for keyword frequencies, there is a huge spike in the keyword “creditstinger” between 2007 and 2009, going down slowly to the same number of mentions as “women_director” by around 2017. Meanwhile, there were some spikes in mentions of “independent_film” spiking between 1995 and 200, and then again between 2005 and 2010, but that also went down thereafter by 2017. Generally, the only line that generally trended upward was the one for “women_director,” although that line too seemed to have gone through ups and downs.
+
+#### Directors - total revenue
+
+Do specific directors bring in more revenue than others? We decided to take the top ten largest names in the game to see how much revenue they brought in. Steven Spielberg took in the most at almost $85 million, with Peter Jackson coming in second at about $65 billion. Michael Bay and James Cameron similarly brought in just shy of $60 billion. Spielberg has the most wide range of films, although primarily science fiction but also with all-star casts which is reflected in the revenue generated. Peter Jackson is known for the “Lord of the Rings” series, as well as other science fiction movies, which also explains his high movie revenue, and Michael Bay is known for his action movies, specifically Transformers. James Cameron is known for Avatar, which was one of the first highest grossing CGI films to date, as well as the Titanic, both of which were incredibly famous and successful, although somewhat different.
+
+
+
 Production
 ================================
 
@@ -257,7 +353,7 @@ pop_line <- clean_data %>%
   geom_line() +
   labs(x = "Year",
        y = "Average Popularity Score",
-       title = "Top 5 Most Popular Movie Genres by Popularity Score (IMBd)")
+       title = "Top 5 Most Popular Movie Genres by Popularity Score (IMDb)")
 
 ggplotly(pop_line)
 
@@ -327,10 +423,10 @@ figure <- plot_ly(bubble_data,
                   )
 
 figure <- figure %>% layout(
-                  title="Net Profit, IMBd Rating, and Popularity Score",
+                  title="Net Profit, IMDb Rating, and Popularity Score",
                   showlegend=TRUE,
                   font = list(color = "#013220"),
-                  xaxis = list(title = "IMBd Rating Average",
+                  xaxis = list(title = "IMDb Rating Average",
                                range = c(3,9)),
                   yaxis = list(title = "Net Profit in USD ($)")
 )
