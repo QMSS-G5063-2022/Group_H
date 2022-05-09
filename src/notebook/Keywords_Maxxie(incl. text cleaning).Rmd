@@ -169,7 +169,6 @@ v2 <- sort(rowSums(low_matrix),decreasing=TRUE)
 low_freq <- data.frame(word = names(v2),freq=v2)
 ```
 
-
 ```{r}
 library(plotrix)
 commonword <- merge(as.data.frame(high_freq), as.data.frame(low_freq), by.x = "word", by.y = "word", sort = TRUE)
@@ -178,20 +177,27 @@ commonword <- merge(as.data.frame(high_freq), as.data.frame(low_freq), by.x = "w
 commonword <- commonword[order(commonword$freq.y, decreasing = TRUE),]
 
 top20 <- commonword[(1:20),]
+colnames(top20) <- c("word","high", "low")
 
-p <- pyramid.plot(top20$freq.x, top20$freq.y,
+```
+
+
+
+
+```{r, echo=FALSE,warning=FALSE,message=FALSE,error=FALSE, results='hide',fig.keep='all'}
+
+
+pyramid.plot(top20$low, top20$high,
                   labels = top20$word,
-             #gap = 250,
-             top.labels = c("High Revenue", " ", "Low Revenue"),
+             top.labels = c("Low Revenue", " ", "High Revenue"),
              lxcol=terrain.colors(35),
              rxcol=heat.colors(20),
              main = "Words in Common",
              gap = 28,
-             laxlab = NULL,
-             raxlab = NULL,
-             unit = NULL,
-             labelcex=0.5,
+             labelcex=0.5
              )
+
+
 ```
 
 The common words show some insight to the movie industries. Independent film are high risk and usually have a niche market. The common words duringcreditstinger is a very common "technique" in blockbuster movies such as Marvel's superheros series. 
