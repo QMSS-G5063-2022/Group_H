@@ -141,6 +141,10 @@ For genres, as the majority of the movies had multiple sub-genres, we chose to e
 
 We made a year range limit of 1981 to 2017, as we wanted to see primarily movies that included a higher budget, as well as a specific range within the changes that we saw in technological advances. For keywords for our word clouds, we merged Thriller and Horror data together, as we considered those to be similar genres and wanted to ensure we had enough data for keyword frequencies.
 
+#### Process Book
+
+In the following link, we have logged all of the discarded plots for our dashboard: https://github.com/dustintdn/dustintdn.github.io/blob/main/Process%20Book.pdf
+
 Row {data-height=600}
 -----------------------------------------------------------------------
 
